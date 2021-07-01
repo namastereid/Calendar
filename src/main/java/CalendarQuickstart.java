@@ -1,5 +1,4 @@
 import com.google.api.client.auth.oauth2.Credential;
-import com.google.api.client.auth.oauth2.DataStoreCredentialRefreshListener;
 import com.google.api.client.extensions.java6.auth.oauth2.AuthorizationCodeInstalledApp;
 import com.google.api.client.extensions.jetty.auth.oauth2.LocalServerReceiver;
 import com.google.api.client.googleapis.auth.oauth2.GoogleAuthorizationCodeFlow;
@@ -13,17 +12,14 @@ import com.google.api.client.util.store.DataStoreFactory;
 import com.google.api.client.util.store.FileDataStoreFactory;
 import com.google.api.services.calendar.Calendar;
 import com.google.api.services.calendar.CalendarScopes;
-import com.google.api.services.calendar.model.CalendarListEntry;
-import com.google.api.services.calendar.model.Event;
-import com.google.api.services.calendar.model.Events;
-import com.google.api.services.calendar.model.FreeBusyRequest;
+import com.google.api.services.calendar.model.*;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.security.GeneralSecurityException;
-import java.util.Collections;
+import java.util.ArrayList;
 import java.util.List;
 
 public class CalendarQuickstart {
@@ -66,15 +62,11 @@ public class CalendarQuickstart {
         return new AuthorizationCodeInstalledApp(flow, receiver).authorize(userId);
     }
 
-    private static String getPrimaryCalendar(Calendar calendarService) {
-        List<CalendarListEntry> calendarList = null;
-        try {
-            calendarList = calendarService.calendarList().list().execute().getItems();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+    private static String getPrimaryCalendarId(Calendar calendarService) throws IOException {
+        List<CalendarListEntry> calendarList;
+        calendarList = calendarService.calendarList().list().execute().getItems();
 
-        if(calendarList == null || calendarList.isEmpty()) { return null; }
+        if(calendarList.isEmpty()) { return null; }
 
         for (CalendarListEntry entry : calendarList) {
             if(entry.isPrimary()) {
@@ -83,6 +75,21 @@ public class CalendarQuickstart {
         }
 
         return null;
+    }
+
+    private static List<TimePeriod> getFreeBusy(Calendar calendarService) throws IOException {
+        DateTime now = new DateTime(System.currentTimeMillis());
+        long DAY_IN_MS = 1000 * 60 * 60 * 24;
+        DateTime sevenDays = new DateTime(System.currentTimeMillis() + DAY_IN_MS * 7);
+
+            List<FreeBusyRequestItem> items = new ArrayList<FreeBusyRequestItem>();
+            String primaryCalendarId = getPrimaryCalendarId(calendarService);
+            items.add(new FreeBusyRequestItem().setId(getPrimaryCalendarId(calendarService)));
+
+          return  calendarService.freebusy().query( new FreeBusyRequest()
+            .setTimeMin(now)
+            .setTimeMax(sevenDays)
+            .setItems(items)).execute().getCalendars().get(primaryCalendarId).getBusy();
     }
 
     public static void main(String... args) throws IOException, GeneralSecurityException {
