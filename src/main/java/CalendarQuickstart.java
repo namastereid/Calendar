@@ -82,15 +82,18 @@ public class CalendarQuickstart {
         long DAY_IN_MS = 1000 * 60 * 60 * 24;
         DateTime sevenDays = new DateTime(System.currentTimeMillis() + DAY_IN_MS * 7);
 
-            List<FreeBusyRequestItem> items = new ArrayList<FreeBusyRequestItem>();
+            List<FreeBusyRequestItem> items = new ArrayList<>();
             String primaryCalendarId = getPrimaryCalendarId(calendarService);
             items.add(new FreeBusyRequestItem().setId(getPrimaryCalendarId(calendarService)));
 
           return  calendarService.freebusy().query( new FreeBusyRequest()
             .setTimeMin(now)
             .setTimeMax(sevenDays)
+                  .setTimeZone("")
             .setItems(items)).execute().getCalendars().get(primaryCalendarId).getBusy();
     }
+
+
 
     public static void main(String... args) throws IOException, GeneralSecurityException {
         // Build a new authorized API client service.
@@ -100,17 +103,7 @@ public class CalendarQuickstart {
                 .setApplicationName(APPLICATION_NAME)
                 .build();
 
-        // Get the
 
-        // List the next week of events from the primary calendar;
-        DateTime now = new DateTime(System.currentTimeMillis());
-        long DAY_IN_MS = 1000 * 60 * 60 * 24;
-        DateTime sevenDays = new DateTime(System.currentTimeMillis() + DAY_IN_MS * 7);
-
-        service.freebusy().query(new FreeBusyRequest()
-        .setTimeMin(now)
-        .setTimeMax(sevenDays)
-        );
 
 //        Events events = service.events().list("primary")
 //                .setTimeMin(now)
