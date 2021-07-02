@@ -50,8 +50,6 @@ public class CalendarQuickstart {
         GoogleClientSecrets clientSecrets = GoogleClientSecrets.load(JSON_FACTORY, new InputStreamReader(in));
         DataStoreFactory dataStoreFactory = new FileDataStoreFactory(new java.io.File(TOKENS_DIRECTORY_PATH));
 
-
-        // TODO determine if we need to setRefreshListener to store refreshed tokens
         // Build flow and trigger user authorization request.
         GoogleAuthorizationCodeFlow flow = new GoogleAuthorizationCodeFlow.Builder(
                 HTTP_TRANSPORT, JSON_FACTORY, clientSecrets, SCOPES)
@@ -103,7 +101,7 @@ public class CalendarQuickstart {
                 .setApplicationName(APPLICATION_NAME)
                 .build();
 
-
+        // TODO add API for registering User's auth token with provided userId
 
 //        Events events = service.events().list("primary")
 //                .setTimeMin(now)

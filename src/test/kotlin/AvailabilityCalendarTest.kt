@@ -21,7 +21,7 @@ class AvailabilityCalendarTest {
         val workingHours = Range.closed(LocalTime.parse("09:00"), LocalTime.parse("17:00"))
 
         val calendar = AvailabilityCalendar(timeZone, busy, workingHours)
-        val freeRangeList = calendar.getFreeRangeSet(
+        val freeRangeSet = calendar.getFreeRangeSet(
             Range.open(
                 LocalDateTime.parse("2020-07-01T00:00:00"),
                 LocalDateTime.parse("2020-07-03T00:00:00")
@@ -33,7 +33,7 @@ class AvailabilityCalendarTest {
             .add(Range.open(LocalDateTime.parse("2020-07-02T09:00:00"), LocalDateTime.parse("2020-07-02T17:00:00")))
             .build()
 
-        assertEquals(expected, freeRangeList)
+        assertEquals(expected, freeRangeSet)
     }
 
     @Test
@@ -52,7 +52,7 @@ class AvailabilityCalendarTest {
             Range.open(LocalDateTime.parse("2020-07-01T00:00:00"), LocalDateTime.parse("2020-07-02T00:00:00"))
         assertEquals(
             calendar1.getAvailability(listOf(calendar2), timeRange),
-            calendar1.getFreeRangeSet(Range.open(now, now.plusHours(3)))
+            calendar1.getFreeRangeSet(timeRange)
         )
     }
 
@@ -75,10 +75,10 @@ class AvailabilityCalendarTest {
 
         val calendar2 = AvailabilityCalendar(timeZone, busy2, workingHours)
 
-        val expected = listOf(
-            Range.closed(LocalDateTime.parse("2020-07-01T09:55:01"), LocalDateTime.parse("2020-07-01T09:59:59")),
-            Range.closed(LocalDateTime.parse("2020-07-01T14:00:01"), LocalDateTime.parse("2020-07-01T16:59:59"))
-        )
+        val expected = ImmutableRangeSet.Builder<LocalDateTime>()
+            .add(Range.open(LocalDateTime.parse("2020-07-01T09:55"), LocalDateTime.parse("2020-07-01T10:00")))
+            .add(Range.open(LocalDateTime.parse("2020-07-01T14:00"), LocalDateTime.parse("2020-07-01T17:00")))
+            .build()
 
         val timeRange =
             Range.open(LocalDateTime.parse("2020-07-01T00:00:00"), LocalDateTime.parse("2020-07-02T00:00:00"))

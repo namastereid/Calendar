@@ -24,6 +24,7 @@ fun main() {
             get("/") {
                 call.respondHtml(HttpStatusCode.OK, HTML::index)
             }
+            // TODO add route for getting availability by user list and time range
         }
     }.start(wait = true)
 }
