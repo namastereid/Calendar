@@ -27,11 +27,12 @@ class AvailabilityCalendarTest {
                 LocalDateTime.parse("2020-07-03T00:00:00")
             )
         )
-        val expected = listOf(
-            Range.closed(LocalDateTime.parse("2020-07-01T09:00:00"), LocalDateTime.parse("2020-07-01T09:59:59")),
-            Range.closed(LocalDateTime.parse("2020-07-01T12:00:01"), LocalDateTime.parse("2020-07-01T16:59:59")),
-            Range.closed(LocalDateTime.parse("2020-07-02T09:00:01"), LocalDateTime.parse("2020-07-02T16:59:59")),
-        )
+        val expected = ImmutableRangeSet.Builder<LocalDateTime>()
+            .add(Range.open(LocalDateTime.parse("2020-07-01T09:00:00"), LocalDateTime.parse("2020-07-01T10:00:00")))
+            .add(Range.open(LocalDateTime.parse("2020-07-01T12:00:00"), LocalDateTime.parse("2020-07-01T17:00:00")))
+            .add(Range.open(LocalDateTime.parse("2020-07-02T09:00:00"), LocalDateTime.parse("2020-07-02T17:00:00")))
+            .build()
+
         assertEquals(expected, freeRangeList)
     }
 
