@@ -14,9 +14,14 @@ repositories {
     mavenCentral()
 }
 
+//tasks.withType<Test> {
+//    useJUnitPlatform()
+//}
+
 dependencies {
     testImplementation(kotlin("test-junit5"))
     testImplementation("org.junit.jupiter:junit-jupiter-api:5.6.0")
+    testImplementation("io.kotest:kotest-assertions-core:4.6.0") // for kotest core jvm assertions
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.6.0")
     implementation("io.ktor:ktor-server-netty:1.4.0")
     implementation("io.ktor:ktor-html-builder:1.4.0")
