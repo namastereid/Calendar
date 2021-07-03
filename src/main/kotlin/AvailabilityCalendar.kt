@@ -3,6 +3,7 @@
 import com.google.common.collect.ImmutableRangeSet
 import com.google.common.collect.Range
 import java.time.LocalDateTime
+import java.time.LocalTime
 import java.time.ZoneId
 import java.time.ZonedDateTime
 
@@ -12,8 +13,8 @@ import java.time.ZonedDateTime
  */
 data class AvailabilityCalendar(
     val timeZone: ZoneId,
-    val busyRangeSet: ImmutableRangeSet<ZonedDateTime>,
-    val workingHours: Range<ZonedDateTime>
+    val busyRangeSet: ImmutableRangeSet<LocalDateTime>,
+    val workingHours: Range<LocalTime>
 ) {
 
     /**
@@ -28,27 +29,50 @@ data class AvailabilityCalendar(
         )
     }
 
+    private fun localRangeWithZone(timeRange: Range<LocalDateTime>, zoneId: ZoneId): Range<ZonedDateTime> {
+        return Range.range(
+            timeRange.lowerEndpoint().atZone(zoneId),
+            timeRange.lowerBoundType(),
+            timeRange.upperEndpoint().atZone(zoneId),
+            timeRange.upperBoundType()
+        )
+    }
+
     /**
-     * Get the range of free times within the [timeRange].
+     * Get [Range] in [LocalDateTime] using [timeZone]
+     */
+    private fun rangeInLocal(timeRange: Range<ZonedDateTime>): Range<LocalDateTime> {
+        return Range.range(
+            timeRange.lowerEndpoint().withZoneSameInstant(timeZone).toLocalDateTime(),
+            timeRange.lowerBoundType(),
+            timeRange.upperEndpoint().withZoneSameInstant(timeZone).toLocalDateTime(),
+            timeRange.upperBoundType()
+        )
+    }
+
+    /**
+     * Get the range of free times within the [timeRange] with the calendar's [timeZone].
      */
     fun getFreeRangeSet(timeRange: Range<ZonedDateTime>): ImmutableRangeSet<ZonedDateTime> {
-        val range = rangeWithZone(timeRange, timeZone)
-        val start = range.lowerEndpoint()
-        val end = range.upperEndpoint()
-
-        val workingRangeSet =
-            start.toLocalDate().datesUntil(end.toLocalDate()).toList()
-                .fold(ImmutableRangeSet.Builder<ZonedDateTime>())
-                { builder, date ->
-                    builder.add(
-                        Range.open(
-                            date.atTime(workingHours.lowerEndpoint().toLocalTime()).atZone(timeZone),
-                            date.atTime(workingHours.upperEndpoint().toLocalTime()).atZone(timeZone)
-                        )
+        val range = rangeInLocal(timeRange)
+        val dateSequence = generateSequence(range.lowerEndpoint().toLocalDate()) { it.plusDays(1) }
+        val workingRangeSet = dateSequence.takeWhile { it <= range.upperEndpoint().toLocalDate() }
+            .fold(ImmutableRangeSet.Builder<LocalDateTime>())
+            { builder, date ->
+                builder.add(
+                    Range.open(
+                        date.atTime(workingHours.lowerEndpoint()),
+                        date.atTime(workingHours.upperEndpoint())
                     )
-                }.build()
+                )
+            }.build()
 
-        return busyRangeSet.complement().subRangeSet(timeRange).intersection(workingRangeSet)
+        val freeRangeSet = busyRangeSet.complement().subRangeSet(range).intersection(workingRangeSet)
+
+        return freeRangeSet.asRanges().fold(ImmutableRangeSet.Builder<ZonedDateTime>())
+        { builder, freeRange ->
+            builder.add(localRangeWithZone(freeRange, timeZone))
+        }.build()
     }
 
     /**
