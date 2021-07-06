@@ -140,4 +140,95 @@ class AvailabilityCalendarTest {
             )
         assertEquals(expected, calendar1.getAvailability(listOf(calendar2), timeRange))
     }
+
+    @Test
+    fun `get availability different timezone`() {
+        val denverTZ = ZoneId.of("America/Denver")
+        val newYorkTZ = ZoneId.of("America/New_York")
+
+        val workingHours1 = Range.closed(LocalTime.parse("08:00"), LocalTime.parse("18:00"))
+
+        val busy1 = ImmutableRangeSet.Builder<LocalDateTime>()
+            .add(Range.closed(LocalDateTime.parse("2020-07-01T08:30:00"), LocalDateTime.parse("2020-07-01T08:55:00")))
+            .add(Range.closed(LocalDateTime.parse("2020-07-01T10:00:00"), LocalDateTime.parse("2020-07-01T12:00:00")))
+            .build()
+
+        val calendar1 = AvailabilityCalendar(denverTZ, busy1, workingHours1)
+
+        val workingHours2 = Range.closed(LocalTime.parse("09:00"), LocalTime.parse("17:00"))
+        val busy2 = ImmutableRangeSet.Builder<LocalDateTime>()
+            .add(Range.closed(LocalDateTime.parse("2020-07-01T09:00:00"), LocalDateTime.parse("2020-07-01T09:55:00")))
+            .add(Range.closed(LocalDateTime.parse("2020-07-01T11:00:00"), LocalDateTime.parse("2020-07-01T14:00:00")))
+            .build()
+
+        val calendar2 = AvailabilityCalendar(newYorkTZ, busy2, workingHours2)
+
+        val expected = ImmutableRangeSet.Builder<ZonedDateTime>()
+            .add(
+                Range.open(
+                    LocalDateTime.parse("2020-07-01T08:00").atZone(denverTZ),
+                    LocalDateTime.parse("2020-07-01T08:30").atZone(denverTZ)
+                )
+            )
+            .add(
+                Range.open(
+                    LocalDateTime.parse("2020-07-01T08:55").atZone(denverTZ),
+                    LocalDateTime.parse("2020-07-01T09:00").atZone(denverTZ)
+                )
+            )
+            .add(
+                Range.open(
+                    LocalDateTime.parse("2020-07-01T12:00").atZone(denverTZ),
+                    LocalDateTime.parse("2020-07-01T15:00").atZone(denverTZ)
+                )
+            )
+            .build()
+
+        val timeRange =
+            Range.open(
+                LocalDateTime.parse("2020-07-01T00:00:00").atZone(denverTZ),
+                LocalDateTime.parse("2020-07-02T00:00:00").atZone(denverTZ)
+            )
+        assertEquals(expected, calendar1.getAvailability(listOf(calendar2), timeRange))
+    }
+
+    @Test
+    fun `get availability different timezone afternoon only`() {
+        val denverTZ = ZoneId.of("America/Denver")
+        val newYorkTZ = ZoneId.of("America/New_York")
+
+        val workingHours1 = Range.closed(LocalTime.parse("08:00"), LocalTime.parse("18:00"))
+
+        val busy1 = ImmutableRangeSet.Builder<LocalDateTime>()
+            .add(Range.closed(LocalDateTime.parse("2020-07-01T08:30:00"), LocalDateTime.parse("2020-07-01T08:55:00")))
+            .add(Range.closed(LocalDateTime.parse("2020-07-01T10:00:00"), LocalDateTime.parse("2020-07-01T12:00:00")))
+            .build()
+
+        val calendar1 = AvailabilityCalendar(denverTZ, busy1, workingHours1)
+
+        val workingHours2 = Range.closed(LocalTime.parse("09:00"), LocalTime.parse("17:00"))
+        val busy2 = ImmutableRangeSet.Builder<LocalDateTime>()
+            .add(Range.closed(LocalDateTime.parse("2020-07-01T09:00:00"), LocalDateTime.parse("2020-07-01T09:55:00")))
+            .add(Range.closed(LocalDateTime.parse("2020-07-01T11:00:00"), LocalDateTime.parse("2020-07-01T14:00:00")))
+            .build()
+
+        val calendar2 = AvailabilityCalendar(newYorkTZ, busy2, workingHours2)
+
+        val expected = ImmutableRangeSet.Builder<ZonedDateTime>()
+            .add(
+                Range.open(
+                    LocalDateTime.parse("2020-07-01T13:00").atZone(denverTZ),
+                    LocalDateTime.parse("2020-07-01T15:00").atZone(denverTZ)
+                )
+            )
+            .build()
+
+        val timeRange =
+            Range.open(
+                LocalDateTime.parse("2020-07-01T13:00:00").atZone(denverTZ),
+                LocalDateTime.parse("2020-07-02T17:00:00").atZone(denverTZ)
+            )
+        assertEquals(expected, calendar1.getAvailability(listOf(calendar2), timeRange))
+
+    }
 }
