@@ -55,20 +55,20 @@ class AvailabilityCalendarTest {
             ImmutableRangeSet.Builder<ZonedDateTime>()
                 .add(
                     Range.open(
-                        ZonedDateTime.parse("2020-07-01T12:30:00-04:00[America/New_York]"),
-                        ZonedDateTime.parse("2020-07-01T17:00:00-04:00[America/New_York]")
+                        ZonedDateTime.parse("2020-07-01T10:30:00-06:00[America/Denver]"),
+                        ZonedDateTime.parse("2020-07-01T15:00:00-06:00[America/Denver]")
                     )
                 )
                 .add(
                     Range.open(
-                        ZonedDateTime.parse("2020-07-02T09:00:00-04:00[America/New_York]"),
-                        ZonedDateTime.parse("2020-07-02T17:00:00-04:00[America/New_York]"),
+                        ZonedDateTime.parse("2020-07-02T07:00:00-06:00[America/Denver]"),
+                        ZonedDateTime.parse("2020-07-02T15:00:00-06:00[America/Denver]"),
                     )
                 )
                 .add(
                     Range.open(
-                        ZonedDateTime.parse("2020-07-03T09:30:00-04:00[America/New_York]"),
-                        ZonedDateTime.parse("2020-07-03T14:00:00-04:00[America/New_York]"),
+                        ZonedDateTime.parse("2020-07-03T07:30:00-06:00[America/Denver]"),
+                        ZonedDateTime.parse("2020-07-03T12:00:00-06:00[America/Denver]"),
                     )
                 )
                 .build()

@@ -29,7 +29,10 @@ data class AvailabilityCalendar(
         )
     }
 
-    private fun localRangeWithZone(timeRange: Range<LocalDateTime>, zoneId: ZoneId): Range<ZonedDateTime> {
+    /**
+     * Set the [zoneId]] on a local [timeRange].
+     */
+    private fun localToZonedRange(timeRange: Range<LocalDateTime>, zoneId: ZoneId): Range<ZonedDateTime> {
         return Range.range(
             timeRange.lowerEndpoint().atZone(zoneId),
             timeRange.lowerBoundType(),
@@ -51,9 +54,10 @@ data class AvailabilityCalendar(
     }
 
     /**
-     * Get the range of free times within the [timeRange] with the calendar's [timeZone].
+     * Get the range of free times within the [timeRange].
      */
     fun getFreeRangeSet(timeRange: Range<ZonedDateTime>): ImmutableRangeSet<ZonedDateTime> {
+        val rangeZoneId = timeRange.lowerEndpoint().zone;
         val range = rangeInLocal(timeRange)
         val dateSequence = generateSequence(range.lowerEndpoint().toLocalDate()) { it.plusDays(1) }
         val workingRangeSet = dateSequence.takeWhile { it <= range.upperEndpoint().toLocalDate() }
@@ -71,18 +75,17 @@ data class AvailabilityCalendar(
 
         return freeRangeSet.asRanges().fold(ImmutableRangeSet.Builder<ZonedDateTime>())
         { builder, freeRange ->
-            builder.add(localRangeWithZone(freeRange, timeZone))
+            builder.add(rangeWithZone(localToZonedRange(freeRange, timeZone), rangeZoneId))
         }.build()
     }
 
     /**
-     * Get availability intersection between this [AvailabilityCalendar] and provided [calendars].
+     * Get availability intersection between this calendar and provided [calendars].
      */
     fun getAvailability(
         calendars: List<AvailabilityCalendar>,
         timeRange: Range<ZonedDateTime>
     ): ImmutableRangeSet<ZonedDateTime> {
-        //TODO handle timezones
         return calendars.fold(this.getFreeRangeSet(timeRange))
         { acc: ImmutableRangeSet<ZonedDateTime>, cal: AvailabilityCalendar ->
             return acc.intersection(cal.getFreeRangeSet(timeRange))
