@@ -2,14 +2,14 @@
 
 import com.google.common.collect.ImmutableRangeSet
 import com.google.common.collect.Range
+import nam.calendar.AvailabilityCalendar
 import org.junit.jupiter.api.TestInstance
 import java.time.LocalDateTime
 import java.time.LocalTime
 import java.time.ZoneId
 import java.time.ZonedDateTime
-import java.time.temporal.TemporalAccessor
-import java.util.*
-import kotlin.test.*
+import kotlin.test.Test
+import kotlin.test.assertEquals
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class AvailabilityCalendarTest {
@@ -229,6 +229,5 @@ class AvailabilityCalendarTest {
                 LocalDateTime.parse("2020-07-01T17:00:00").atZone(denverTZ)
             )
         assertEquals(expected, calendar1.getAvailability(listOf(calendar2), timeRange))
-
     }
 }

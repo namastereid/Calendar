@@ -1,5 +1,7 @@
 @file:Suppress("UnstableApiUsage")
 
+package nam.calendar
+
 import com.google.common.collect.ImmutableRangeSet
 import com.google.common.collect.Range
 import java.time.LocalDateTime
@@ -57,7 +59,7 @@ data class AvailabilityCalendar(
      * Get the range of free times within the [timeRange].
      */
     fun getFreeRangeSet(timeRange: Range<ZonedDateTime>): ImmutableRangeSet<ZonedDateTime> {
-        val rangeZoneId = timeRange.lowerEndpoint().zone;
+        val rangeZoneId = timeRange.lowerEndpoint().zone
         val range = rangeInLocal(timeRange)
         val dateSequence = generateSequence(range.lowerEndpoint().toLocalDate()) { it.plusDays(1) }
         val workingRangeSet = dateSequence.takeWhile { it <= range.upperEndpoint().toLocalDate() }
