@@ -226,7 +226,7 @@ class AvailabilityCalendarTest {
         val timeRange =
             Range.open(
                 LocalDateTime.parse("2020-07-01T13:00:00").atZone(denverTZ),
-                LocalDateTime.parse("2020-07-02T17:00:00").atZone(denverTZ)
+                LocalDateTime.parse("2020-07-01T17:00:00").atZone(denverTZ)
             )
         assertEquals(expected, calendar1.getAvailability(listOf(calendar2), timeRange))
 
