@@ -2,7 +2,6 @@
 
 package nam.calendar.routes
 
-import com.google.common.collect.ImmutableRangeSet
 import com.google.common.collect.Range
 import io.ktor.application.*
 import io.ktor.response.*
@@ -13,7 +12,6 @@ import nam.calendar.getAvailability
 import java.time.LocalDateTime
 import java.time.LocalTime
 import java.time.ZoneId
-import java.time.ZonedDateTime
 
 fun Route.availabilityRoute() {
     route("/availability") {
@@ -32,7 +30,7 @@ fun Route.availabilityRoute() {
                 list
             }
 
-            call.respond(getAvailability(calendarList, range))
+            call.respond(getAvailability(calendarList, range).toString())
         }
     }
 }

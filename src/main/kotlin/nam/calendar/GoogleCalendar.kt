@@ -20,9 +20,11 @@ import com.google.common.collect.ImmutableRangeSet
 import com.google.common.collect.Range
 import java.io.*
 import java.security.GeneralSecurityException
+import java.time.Instant
 import java.time.LocalDateTime
 import java.time.LocalTime
 import java.time.ZoneId
+import java.time.format.DateTimeFormatter
 
 @Suppress("UnstableApiUsage")
 class GoogleCalendar(userId: String, workingHours: Range<LocalTime>) : nam.calendar.Calendar(userId, workingHours) {
@@ -47,18 +49,19 @@ class GoogleCalendar(userId: String, workingHours: Range<LocalTime>) : nam.calen
     private val primaryCalendarId = calendar.id
     private val freeBusy = getFreeBusy()
 
+    override val timeZone: ZoneId
+        get() = ZoneId.of(calendar.timeZone)
+
     override val busyRangeSet: ImmutableRangeSet<LocalDateTime>
         get() = freeBusy!!.fold(ImmutableRangeSet.Builder<LocalDateTime>()) { builder, timePeriod ->
             builder.add(
                 Range.open(
-                    LocalDateTime.parse(timePeriod?.start.toString()),
-                    LocalDateTime.parse(timePeriod?.end.toString())
+                    LocalDateTime.ofInstant(timePeriod?.start?.value?.let { Instant.ofEpochMilli(it) }, timeZone),
+                    LocalDateTime.ofInstant(timePeriod?.end?.value?.let { Instant.ofEpochMilli(it) }, timeZone)
                 )
             )
         }.build()
 
-    override val timeZone: ZoneId
-        get() = ZoneId.of(calendar.timeZone)
 
     /**
      * Creates an authorized Credential object.
