@@ -55,7 +55,7 @@ class GoogleCalendar(userId: String, workingHours: Range<LocalTime>) : nam.calen
     override val busyRangeSet: ImmutableRangeSet<LocalDateTime>
         get() = freeBusy!!.fold(ImmutableRangeSet.Builder<LocalDateTime>()) { builder, timePeriod ->
             builder.add(
-                Range.open(
+                Range.closed(
                     LocalDateTime.ofInstant(timePeriod?.start?.value?.let { Instant.ofEpochMilli(it) }, timeZone),
                     LocalDateTime.ofInstant(timePeriod?.end?.value?.let { Instant.ofEpochMilli(it) }, timeZone)
                 )

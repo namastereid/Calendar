@@ -75,4 +75,72 @@ class CalendarTest {
 
         assertEquals(expected, freeRangeSet)
     }
+
+    @Test
+    fun `get free range 2`() {
+        val busy =
+            ImmutableRangeSet.Builder<LocalDateTime>()
+                .add(
+                    Range.closed(
+                        LocalDateTime.parse("2021-07-07T09:00:00"),
+                        LocalDateTime.parse("2021-07-07T10:00:00")
+                    )
+                )
+                .add(
+                    Range.closed(
+                        LocalDateTime.parse("2021-07-07T12:00:00"),
+                        LocalDateTime.parse("2021-07-07T13:00:00")
+                    )
+                )
+                .add(
+                    Range.closed(
+                        LocalDateTime.parse("2021-07-07T18:00:00"),
+                        LocalDateTime.parse("2021-07-07T19:00:00")
+                    )
+                )
+                .add(
+                    Range.closed(
+                        LocalDateTime.parse("2021-07-09T13:00:00"),
+                        LocalDateTime.parse("2021-07-09T15:00:00")
+                    )
+                )
+                .add(
+                    Range.closed(
+                        LocalDateTime.parse("2021-07-11T19:00:00"),
+                        LocalDateTime.parse("2021-07-11T20:00:00")
+                    )
+                )
+                .build()
+        val workingHours =
+            Range.closed(
+                LocalTime.parse("09:00"),
+                LocalTime.parse("17:00")
+            )
+        val calendar = TestCalendar("user1", workingHours, ZoneId.of("America/Denver"), busy)
+
+        val timeRange =
+            Range.open(
+                ZonedDateTime.parse("2021-07-07T00:00:00-06:00[America/Denver]"),
+                ZonedDateTime.parse("2021-07-08T00:00:00-06:00[America/Denver]"),
+            )
+        val freeRangeSet = calendar.getFreeRangeSet(timeRange)
+
+        val expected =
+            ImmutableRangeSet.Builder<ZonedDateTime>()
+                .add(
+                    Range.open(
+                        ZonedDateTime.parse("2021-07-07T10:00:00-06:00[America/Denver]"),
+                        ZonedDateTime.parse("2021-07-07T12:00:00-06:00[America/Denver]")
+                    )
+                )
+                .add(
+                    Range.open(
+                        ZonedDateTime.parse("2021-07-07T13:00:00-06:00[America/Denver]"),
+                        ZonedDateTime.parse("2021-07-07T17:00:00-06:00[America/Denver]"),
+                    )
+                )
+                .build()
+
+        assertEquals(expected, freeRangeSet)
+    }
 }
