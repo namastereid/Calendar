@@ -15,7 +15,7 @@ fun getAvailability(
 ): ImmutableRangeSet<ZonedDateTime> {
     return calendars.fold(ImmutableRangeSet.Builder<ZonedDateTime>().build())
     { acc: ImmutableRangeSet<ZonedDateTime>, cal: Calendar ->
-        if (acc.isEmpty) return cal.getFreeRangeSet(timeRange)
-        return acc.intersection(cal.getFreeRangeSet(timeRange))
+        if (acc.isEmpty) cal.getFreeRangeSet(timeRange)
+        else acc.intersection(cal.getFreeRangeSet(timeRange))
     }
 }
