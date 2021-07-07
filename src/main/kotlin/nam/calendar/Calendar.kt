@@ -13,11 +13,12 @@ import java.time.ZonedDateTime
  * [busyRangeSet] and [workingHours] are in local time. TimeZone will be used when [getAvailability] is called
  * to match availability between calendars.
  */
-data class AvailabilityCalendar(
-    val timeZone: ZoneId,
-    val busyRangeSet: ImmutableRangeSet<LocalDateTime>,
-    val workingHours: Range<LocalTime>
+abstract class Calendar(
+    val userId: String,
+    private val workingHours: Range<LocalTime>
 ) {
+    abstract val timeZone: ZoneId
+    abstract val busyRangeSet: ImmutableRangeSet<LocalDateTime>
 
     /**
      * Get [timeRange] with [zoneId] with the same instant.
@@ -79,18 +80,5 @@ data class AvailabilityCalendar(
         { builder, freeRange ->
             builder.add(rangeWithZone(localToZonedRange(freeRange, timeZone), rangeZoneId))
         }.build()
-    }
-
-    /**
-     * Get availability intersection between this calendar and provided [calendars].
-     */
-    fun getAvailability(
-        calendars: List<AvailabilityCalendar>,
-        timeRange: Range<ZonedDateTime>
-    ): ImmutableRangeSet<ZonedDateTime> {
-        return calendars.fold(this.getFreeRangeSet(timeRange))
-        { acc: ImmutableRangeSet<ZonedDateTime>, cal: AvailabilityCalendar ->
-            return acc.intersection(cal.getFreeRangeSet(timeRange))
-        }
     }
 }

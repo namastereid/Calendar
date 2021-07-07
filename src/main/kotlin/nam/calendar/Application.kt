@@ -10,6 +10,7 @@ import io.ktor.serialization.*
 import io.ktor.server.engine.embeddedServer
 import io.ktor.server.netty.Netty
 import kotlinx.html.*
+import nam.calendar.routes.registerAvailabilityRoutes
 
 fun HTML.index() {
     head {
@@ -29,16 +30,5 @@ fun Application.module(testing: Boolean = false) {
         json()
     }
 
-    embeddedServer(Netty, port = 8080, host = "127.0.0.1") {
-        routing {
-            get("/") {
-                call.respondHtml(HttpStatusCode.OK, HTML::index)
-            }
-            get("/availability") {
-                val userIds = call.request.queryParameters["id"]
-
-
-            }
-        }
-    }.start(wait = true)
+    registerAvailabilityRoutes();
 }

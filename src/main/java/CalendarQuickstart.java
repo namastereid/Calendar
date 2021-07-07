@@ -64,10 +64,12 @@ public class CalendarQuickstart {
         List<CalendarListEntry> calendarList;
         calendarList = calendarService.calendarList().list().execute().getItems();
 
-        if(calendarList.isEmpty()) { return null; }
+        if (calendarList.isEmpty()) {
+            return null;
+        }
 
         for (CalendarListEntry entry : calendarList) {
-            if(entry.isPrimary()) {
+            if (entry.isPrimary()) {
                 return entry.getId();
             }
         }
@@ -75,23 +77,27 @@ public class CalendarQuickstart {
         return null;
     }
 
-    private static List<TimePeriod> getFreeBusy(Calendar calendarService) throws IOException {
+    private static List<TimePeriod> getFreeBusy(String userId) throws IOException, GeneralSecurityException {
+        final NetHttpTransport HTTP_TRANSPORT = GoogleNetHttpTransport.newTrustedTransport();
+        Credential credential = getCredentials(HTTP_TRANSPORT, userId);
+        Calendar calendarService= new Calendar.Builder(HTTP_TRANSPORT, JSON_FACTORY, credential)
+                .setApplicationName(APPLICATION_NAME)
+                .build();
+
         DateTime now = new DateTime(System.currentTimeMillis());
         long DAY_IN_MS = 1000 * 60 * 60 * 24;
         DateTime sevenDays = new DateTime(System.currentTimeMillis() + DAY_IN_MS * 7);
 
-            List<FreeBusyRequestItem> items = new ArrayList<>();
-            String primaryCalendarId = getPrimaryCalendarId(calendarService);
-            items.add(new FreeBusyRequestItem().setId(getPrimaryCalendarId(calendarService)));
+        List<FreeBusyRequestItem> items = new ArrayList<>();
+        String primaryCalendarId = getPrimaryCalendarId(calendarService);
+        items.add(new FreeBusyRequestItem().setId(getPrimaryCalendarId(calendarService)));
 
-          return  calendarService.freebusy().query( new FreeBusyRequest()
-            .setTimeMin(now)
-            .setTimeMax(sevenDays)
-                  .setTimeZone("")
-            .setItems(items)).execute().getCalendars().get(primaryCalendarId).getBusy();
+        return calendarService.freebusy().query(new FreeBusyRequest()
+                .setTimeMin(now)
+                .setTimeMax(sevenDays)
+                .setTimeZone("")
+                .setItems(items)).execute().getCalendars().get(primaryCalendarId).getBusy();
     }
-
-
 
     public static void main(String... args) throws IOException, GeneralSecurityException {
         // Build a new authorized API client service.
